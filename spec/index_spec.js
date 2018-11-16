@@ -18,8 +18,11 @@ describe('gulp-jasmine-browser', function() {
 
     const gulpPath = path.resolve('node_modules', '.bin', 'gulp');
     const gulpFile = path.resolve(__dirname, 'fixtures', 'gulpfile.js');
-    const process = childProcess.exec([gulpPath, '--gulpfile', gulpFile, task].join(' '),
-      {timeout: gulpTimeout}, (error, stdout, stderr) => resolveCompleted({error, stdout, stderr}));
+    const process = childProcess.exec(
+      [gulpPath, '--gulpfile', gulpFile, task].join(' '),
+      {timeout: gulpTimeout},
+      (error, stdout, stderr) => resolveCompleted({error, stdout, stderr})
+    );
 
     const closed = new Promise(resolve => process.on('close', resolve));
 
@@ -31,9 +34,10 @@ describe('gulp-jasmine-browser', function() {
     };
   }
 
-  afterEach.async(async function() {
-    (await Promise.all(processes)).filter(p => p.process).map(p => (p.process.kill(), p.closed));
-  });
+  afterEach.async(() => Promise.all(processes.map(p => {
+    p.process.kill();
+    return p.closed;
+  })));
 
   describeWithoutTravisCI('when running a headless browser', () => {
     it.async('can run tests via PhantomJS', async function() {
